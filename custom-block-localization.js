@@ -13,7 +13,6 @@
         category: 'design',
         attributes: {
             selectedUserId: { type: 'number' },
-            users: { type: 'array' },
             biography: { type: 'string' }
         },
         edit: withSelect((select, props) => {
@@ -50,28 +49,23 @@
                 setAttributes({ selectedUserId, biography: '' });
             };
 
-            return wp.element.createElement(
-                'div',
-                null,
-                wp.element.createElement(
-                    SelectControl,
-                    {
-                        label: __('Select User', 'custom-user-block'),
-                        value: attributes.selectedUserId,
-                        options: [{ label: __('Select a user', 'custom-user-block'), value: '' }, ...users.map(user => ({ label: user.name, value: user.id }))],
-                        onChange: updateSelectedUser
-                    }
-                ),
-                wp.element.createElement(
-                    Button,
-                    {
-                        isPrimary: true,
-                        onClick: () => loadBiography(attributes.selectedUserId)
-                    },
-                    __('Load User\'s Biography', 'custom-user-block')
-                ),
-                biographyLoading && wp.element.createElement(Spinner, null),
-                attributes.biography && wp.element.createElement('div', null, attributes.biography)
+            return (
+                <div>
+                    <SelectControl
+                        label={__('Select User', 'custom-user-block')}
+                        value={attributes.selectedUserId}
+                        options={[{ label: __('Select a user', 'custom-user-block'), value: '' }, ...users.map(user => ({ label: user.name, value: user.id }))]}
+                        onChange={updateSelectedUser}
+                    />
+                    <Button
+                        isPrimary
+                        onClick={() => loadBiography(attributes.selectedUserId)}
+                    >
+                        {__('Load User\'s Biography', 'custom-user-block')}
+                    </Button>
+                    {biographyLoading && <Spinner />}
+                    {attributes.biography && <div>{attributes.biography}</div>}
+                </div>
             );
         }),
         save: () => {

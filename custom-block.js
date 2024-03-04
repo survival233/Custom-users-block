@@ -15,17 +15,25 @@ wp.blocks.registerBlockType('custom/custom-block', {
 
         // Function to load user biography
         function loadBiography(userId) {
-            wp.ajax.post('load_user_biography', { user_id: userId })
-                .done(response => {
-                    if (response.success) {
-                        // Display biography (handle response.data.biography)
-                    } else {
-                        console.error(__('Error:', 'custom-user-block'), response.data.message);
-                    }
-                })
-                .fail(error => {
-                    console.error(__('Error: Failed to load biography', 'custom-user-block'));
-                });
+            wp.apiFetch({
+                path: '/wp-admin/admin-ajax.php',
+                method: 'POST',
+                data: {
+                    action: 'load_user_biography',
+                    security: customBlockData.nonce,
+                    user_id: userId
+                }
+            })
+            .then(response => {
+                if (response.success) {
+                    // Display biography (handle response.data)
+                } else {
+                    console.error(__('Error:', 'custom-user-block'), response.data.message);
+                }
+            })
+            .catch(error => {
+                console.error(__('Error: Failed to load biography', 'custom-user-block'), error);
+            });
         }
 
         // Render the block's editing interface
@@ -70,14 +78,3 @@ wp.blocks.registerBlockType('custom/custom-block', {
         return null;
     }
 });
-
-// Function to fetch users with emails ending in "@rgbc.dev"
-function fetchUsers() {
-    return wp.apiFetch({ path: '/wp/v2/users', method: 'GET' })
-        .then(users => users.filter(user => user.email.endsWith('@rgbc.dev')));
-}
-
-// AJAX endpoint for fetching user biography
-function loadUserBiography(userId) {
-    // Implement the biography loading logic here
-}

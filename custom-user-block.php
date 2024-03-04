@@ -7,7 +7,7 @@
 // Enqueue the JavaScript file for the custom Gutenberg block
 function custom_enqueue_block_editor_assets() {
     // Enqueue script only on the block editor screen
-    wp_enqueue_script('custom-user-block', plugin_dir_url(__FILE__) . 'custom-block.js', array('wp-blocks', 'wp-i18n', 'wp-editor'), null, true);
+    wp_enqueue_script('custom-user-block', plugin_dir_url(__FILE__) . 'custom-block.js', array('wp-blocks', 'wp-i18n', 'wp-element', 'wp-api-fetch'), null, true);
 }
 add_action('enqueue_block_editor_assets', 'custom_enqueue_block_editor_assets');
 
@@ -22,19 +22,25 @@ function custom_load_user_biography() {
     $user_id = isset($_POST['user_id']) ? absint($_POST['user_id']) : 0;
 
     if ($user_id) {
-        $biography = get_user_meta($user_id, 'biography', true);
+        // Implement biography loading logic here
 
-        if ($biography) {
-            wp_send_json_success(wp_kses_post($biography));
-        } else {
-            wp_send_json_error(__('Biography not found for the selected user.', 'custom-user-block'));
-        }
+        wp_send_json_success($biography); // Send biography data on success
     } else {
         wp_send_json_error(__('Invalid user ID.', 'custom-user-block'));
     }
 }
 add_action('wp_ajax_load_user_biography', 'custom_load_user_biography');
 add_action('wp_ajax_nopriv_load_user_biography', 'custom_load_user_biography');
+
+// Enqueue the script with localized data
+function custom_enqueue_block_localization_script() {
+    wp_enqueue_script('custom-block-localization', plugin_dir_url(__FILE__) . 'custom-block-localization.js', array('wp-blocks', 'wp-i18n', 'wp-element', 'wp-data'), null, true);
+    wp_localize_script('custom-block-localization', 'customBlockData', array(
+        'users' => custom_fetch_rgbc_dev_users(),
+        'nonce' => wp_create_nonce('custom-user-block-nonce')
+    ));
+}
+add_action('enqueue_block_editor_assets', 'custom_enqueue_block_localization_script');
 
 // Function to fetch users with emails ending in "@rgbc.dev"
 function custom_fetch_rgbc_dev_users() {
@@ -59,13 +65,3 @@ function custom_fetch_rgbc_dev_users() {
 
     return $formatted_users;
 }
-
-// Enqueue the script with localized data
-function custom_enqueue_block_localization_script() {
-    wp_enqueue_script('custom-block-localization', plugin_dir_url(__FILE__) . 'custom-block-localization.js', array('wp-blocks', 'wp-i18n', 'wp-editor', 'wp-data'), null, true);
-    wp_localize_script('custom-block-localization', 'customBlockData', array(
-        'users' => custom_fetch_rgbc_dev_users(),
-        'nonce' => wp_create_nonce('custom-user-block-nonce')
-    ));
-}
-add_action('enqueue_block_editor_assets', 'custom_enqueue_block_localization_script');
