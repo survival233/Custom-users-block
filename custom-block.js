@@ -77,4 +77,4 @@ wp.blocks.registerBlockType('custom/custom-block', {
         // This block doesn't have a dynamic frontend representation
         return null;
     }
-});
+}); 

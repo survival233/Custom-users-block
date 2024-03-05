@@ -72,3 +72,4 @@ function custom_fetch_rgbc_dev_users() {
 
     return $formatted_users;
 }
+ 
