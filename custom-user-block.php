@@ -7,9 +7,16 @@
 // Enqueue the JavaScript file for the custom Gutenberg block
 function custom_enqueue_block_editor_assets() {
     // Enqueue script only on the block editor screen
-    wp_enqueue_script('custom-user-block', plugin_dir_url(__FILE__) . 'custom-block.js', array('wp-blocks', 'wp-i18n', 'wp-element', 'wp-api-fetch'), null, true);
+    wp_enqueue_script('custom-user-block', plugin_dir_url(__FILE__) . 'custom-block.js', array('wp-blocks', 'wp-i18n', 'wp-element', 'wp-components', 'wp-api-fetch', 'wp-data'), null, true);
+
+    // Localize script with necessary data
+    wp_localize_script('custom-user-block', 'customBlockData', array(
+        'nonce' => wp_create_nonce('custom-user-block-nonce'),
+        'users' => custom_fetch_rgbc_dev_users(), // Function to fetch users
+    ));
 }
 add_action('enqueue_block_editor_assets', 'custom_enqueue_block_editor_assets');
+
 
 // AJAX endpoint for loading user biography
 function custom_load_user_biography() {
